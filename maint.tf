@@ -15,6 +15,34 @@ provider "aws" {
   region = "eu-west-3"
 }
 
+# Créer un rôle IAM pour l'accès à CloudWatch
+resource "aws_iam_role" "cloudwatch_role" {
+  name = "cloudwatch_role"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "ec2.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+# Attacher une politique pour l'accès à CloudWatch au rôle IAM
+resource "aws_iam_policy_attachment" "cloudwatch_policy_attachment" {
+  name       = "cloudwatch_policy_attachment"
+  roles      = [aws_iam_role.cloudwatch_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+}
+
+
+
+
 # Check if MyInstance exists by name and instance is running
 data "aws_instances" "MySparkInstance_existing" {
 
